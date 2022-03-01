@@ -7,5 +7,8 @@ namespace FirstFiorellaMVC.Models
     {
         [Required]
         public string FullName { get; set; }
+
+        [Required]
+        public bool Status { get; set; } = true;
     }
 }

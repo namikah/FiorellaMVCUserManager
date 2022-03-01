@@ -125,5 +125,20 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> ChangeStatus(string id, bool status)
+        {
+            var isUser = await _userManager.FindByIdAsync(id);
+            if (isUser == null)
+                return NotFound();
+
+            if (status)
+                isUser.Status = false;
+            else
+                isUser.Status = true;
+
+            await _userManager.UpdateAsync(isUser);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace FirstFiorellaMVC.Data
 
             #region Default Rollarin json file-dan oxunmasi ve database-ne yazilmasi
 
-            //await MyCreateDefaultRolesFileAsync(); // json file yaradilmasi
+            await MyCreateDefaultRolesFileAsync(); // json file yaradilmasi
 
             var roleJson = File.ReadAllText(@$"{Constants.SeedDataPath}\MyDefaultRoles.json");
             var jsonRoles = JsonConvert.DeserializeObject<List<string>>(roleJson);
@@ -44,7 +44,7 @@ namespace FirstFiorellaMVC.Data
 
             #region Default Userlerin json file-dan oxunmasi ve database-ne yazilmasi
 
-            //await MyCreateDefaultUsersFileAsync(); // json file yaradilmasi
+            await MyCreateDefaultUsersFileAsync(); // json file yaradilmasi
 
             var userJson = File.ReadAllText(@$"{Constants.SeedDataPath}\MyDefaultUsers.json");
             var jsonUsers = JsonConvert.DeserializeObject<List<User>>(userJson);
