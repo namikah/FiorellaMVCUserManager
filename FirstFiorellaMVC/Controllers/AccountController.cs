@@ -111,6 +111,12 @@ namespace FirstFiorellaMVC.Controllers
                 return View(loginViewModel);
             }
 
+            if (isExistUser.Status == false)
+            {
+                ModelState.AddModelError("", "Access denied");
+                return View(loginViewModel);
+            }
+
             var result = await _signInManager.PasswordSignInAsync(isExistUser, loginViewModel.Password, loginViewModel.RememberMe, false);
             if (!result.Succeeded)
             {

@@ -3,6 +3,7 @@ using FirstFiorellaMVC.Controllers;
 using FirstFiorellaMVC.Data;
 using FirstFiorellaMVC.DataAccessLayer;
 using FirstFiorellaMVC.Models;
+using FirstFiorellaMVC.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
 {
     [Area("AdminPanel")]
-    //[Authorize(Roles = RoleConstants.AdminRole)]
+    [Authorize(Roles = RoleConstants.AdminRole)]
     public class UserManagerController : Controller
     {
         private readonly UserManager<User> _userManager;
@@ -27,6 +28,7 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
             _dbContext = dbContext;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -139,6 +141,53 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
             await _userManager.UpdateAsync(isUser);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult AddUser()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddUser(RegisterViewModel registerViewModel)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(registerViewModel);
+            }
+
+            var isExistUser = await _userManager.FindByNameAsync(registerViewModel.Username);
+            if (isExistUser != null)
+            {
+                ModelState.AddModelError("Username", "Allready exist username");
+                return View(registerViewModel);
+            }
+
+            var user = new User()
+            {
+                FullName = registerViewModel.Fullname,
+                UserName = registerViewModel.Username,
+                Email = registerViewModel.Email,
+                Status = false
+            };
+
+            var result = await _userManager.CreateAsync(user, registerViewModel.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+                return View(registerViewModel);
+            }
+
+            await _userManager.AddToRoleAsync(user, RoleConstants.UserRole);
+
+            string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _userManager.ConfirmEmailAsync(user, token);
+
+            return RedirectToAction("Index", "UserManager");
         }
     }
 }
