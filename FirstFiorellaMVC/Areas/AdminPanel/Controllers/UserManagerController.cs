@@ -62,26 +62,34 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 return View(changePasswordVM);
             }
 
-            var isUser = await _userManager.FindByIdAsync(id);
-            if (isUser == null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
                 return NotFound();
 
-            var isOldPassword = await _userManager.CheckPasswordAsync(isUser, changePasswordVM.OldPassword);
+            var isOldPassword = await _userManager.CheckPasswordAsync(user, changePasswordVM.OldPassword);
             if (!isOldPassword)
                 return BadRequest();
 
-            await _userManager.ChangePasswordAsync(isUser, changePasswordVM.OldPassword, changePasswordVM.Password);
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordVM.OldPassword, changePasswordVM.Password);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                    return View();  
+                }
+            }
 
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> ChangeRole(string id)
         {
-            var isUser = await _userManager.FindByIdAsync(id);
-            if (isUser == null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
                 return NotFound();
 
-            var roles = await _userManager.GetRolesAsync(isUser);
+            var roles = await _userManager.GetRolesAsync(user);
             ViewBag.CurrentRoleName = roles.FirstOrDefault();
 
             return View();
@@ -97,14 +105,14 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 return View(roleManagerVM);
             }
 
-            var isUser = await _userManager.FindByIdAsync(id);
-            if (isUser == null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
                 return NotFound();
 
-            var oldRoles = await _userManager.GetRolesAsync(isUser);
+            var oldRoles = await _userManager.GetRolesAsync(user);
             foreach (var item in oldRoles)
             {
-                await _userManager.RemoveFromRoleAsync(isUser, item);
+                await _userManager.RemoveFromRoleAsync(user, item);
             }
 
             var newRole = _roleManager.Roles.FirstOrDefault(x=>x.Id == roleManagerVM.RoleId);
@@ -129,16 +137,16 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
 
         public async Task<IActionResult> ChangeStatus(string id, bool status)
         {
-            var isUser = await _userManager.FindByIdAsync(id);
-            if (isUser == null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
                 return NotFound();
 
             if (status)
-                isUser.Status = false;
+                user.Status = false;
             else
-                isUser.Status = true;
+                user.Status = true;
 
-            await _userManager.UpdateAsync(isUser);
+            await _userManager.UpdateAsync(user);
 
             return RedirectToAction(nameof(Index));
         }
@@ -157,8 +165,8 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 return View(registerViewModel);
             }
 
-            var isExistUser = await _userManager.FindByNameAsync(registerViewModel.Username);
-            if (isExistUser != null)
+            var existUser = await _userManager.FindByNameAsync(registerViewModel.Username);
+            if (existUser != null)
             {
                 ModelState.AddModelError("Username", "Allready exist username");
                 return View(registerViewModel);
@@ -182,10 +190,27 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 return View(registerViewModel);
             }
 
-            await _userManager.AddToRoleAsync(user, RoleConstants.UserRole);
+            result = await _userManager.AddToRoleAsync(user, RoleConstants.UserRole);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+                return View(registerViewModel);
+            }
 
             string token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            await _userManager.ConfirmEmailAsync(user, token);
+
+            result = await _userManager.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                foreach (var item in result.Errors)
+                {
+                    ModelState.AddModelError("", item.Description);
+                }
+                return View(registerViewModel);
+            }
 
             return RedirectToAction("Index", "UserManager");
         }
