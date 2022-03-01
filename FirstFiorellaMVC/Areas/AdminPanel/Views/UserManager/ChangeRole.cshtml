@@ -1,0 +1,26 @@
+﻿@model RoleManagerViewModel
+@{
+    ViewData["Title"] = "ChangeRole";
+}
+
+<div class="container" style="height:100vh;">
+    <div class="row mb-5 mt-5 justify-content-center">
+        <form class="pt-3 col-4 pb-5" method="post" style="background-color:white;">
+            <div class="text-danger" asp-validation-summary=ModelOnly></div>
+            <div class="form-group">
+                <label for="exampleFormControlSelect3" style="color:white;">Change role</label>
+                <select class="form-control form-control-sm selected-role-name" id="exampleFormControlSelect3" asp-for="RoleId">
+                    @await Component.InvokeAsync("Role", ViewBag.CurrentRoleName)
+                </select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+

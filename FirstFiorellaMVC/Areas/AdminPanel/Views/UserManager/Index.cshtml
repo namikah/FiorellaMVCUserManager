@@ -1,8 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Index";
-    List<User> userList = Model;
-    //var maxPageCounts = Math.Ceiling((decimal)ViewBag.ProductCounts / 4);
-    //var currentPage = ViewBag.CurrentPage;
+    UserManagerViewModel userManagerVM = Model;
 }
 
 <div class="container">
@@ -17,16 +15,20 @@
                         <th>Username</th>
                         <th>Fullname</th>
                         <th>Email</th>
+                        <th>Role</th>
                         <th class="operation-row"></th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in userList)
+                    @foreach (var item in userManagerVM.Users)
                     {
+                        var roleName = userManagerVM.Roles.Where(x => x.Id == userManagerVM.UserRoles.Find(x => x.UserId == item.Id)?.RoleId).FirstOrDefault()?.Name;
+                        
                         <tr class="table-info text-center">
                             <td><a style="text-decoration:none" asp-controller="UserManager" asp-action="Detail" asp-route-id="@item.Id">@item.UserName</a></td>
                             <td>@item.FullName</td>
                             <td>@item.Email</td>
+                            <td>@roleName</td>
                             <td class="operation-row">
                                 <a class="btn btn-primary btn-rounded btn-fw" id="change-user-status">Deactive</a>
                                 <a class="btn btn-success btn-rounded btn-fw" asp-action="ChangePassword" asp-route-id="@item.Id">Change password</a>
@@ -38,42 +40,6 @@
             </table>
         </div>
     </div>
-   @* <div class="row justify-content-center">
-        <nav aria-label="...">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" style="background-color: white;">
-                    @{
-                        if (currentPage > 1)
-                        {
-                            <a class="page-link" asp-action="Index" asp-route-page="@(ViewBag.CurrentPage-1)">Previous</a>
-                        }
-                        else
-                        {
-                            <a class="page-link" asp-action="Index" style="pointer-events:none">Previous</a>
-                        }
-                    }
-                </li>
-                @{
-                    for (var i = 1; i <= maxPageCounts; i++)
-                    {
-                        <li class="page-@i" style="background-color:#e9ecef;"><a class="page-link" asp-action="Index" asp-route-page="@i" style="@((currentPage == i)? "background-color:blue; color:white; pointer-events:none;" : "")">@i</a></li>
-                    }
-                }
-                <li class="page-item" style="background-color: white;">
-                    @{
-                        if (currentPage < maxPageCounts)
-                        {
-                            <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)">Next</a>
-                        }
-                        else
-                        {
-                            <a class="page-link" style="pointer-events:none">Next</a>
-                        }
-                    }
-                </li>
-            </ul>
-        </nav>
-    </div>*@
 </div>
 
 <style>
