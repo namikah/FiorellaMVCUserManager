@@ -111,7 +111,7 @@ namespace FirstFiorellaMVC.Controllers
                 return View(loginViewModel);
             }
 
-            if (isExistUser.Status == false)
+            if (isExistUser.IsActive == false)
             {
                 ModelState.AddModelError("", "Access denied");
                 return View(loginViewModel);

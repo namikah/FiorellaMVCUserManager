@@ -122,7 +122,7 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 return View(roleManagerVM);
             }
 
-            var result = await _userManager.AddToRoleAsync(isUser, newRole.Name);
+            var result = await _userManager.AddToRoleAsync(user, newRole.Name);
             if (!result.Succeeded)
             {
                 foreach (var item in result.Errors)
@@ -135,16 +135,16 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> ChangeStatus(string id, bool status)
+        public async Task<IActionResult> ChangeStatus(string id, bool isActive)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
                 return NotFound();
 
             if (status)
-                user.Status = false;
+                user.IsActive = false;
             else
-                user.Status = true;
+                user.IsActive = true;
 
             await _userManager.UpdateAsync(user);
 
@@ -177,7 +177,7 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
                 FullName = registerViewModel.Fullname,
                 UserName = registerViewModel.Username,
                 Email = registerViewModel.Email,
-                Status = false
+                IsActive = false
             };
 
             var result = await _userManager.CreateAsync(user, registerViewModel.Password);

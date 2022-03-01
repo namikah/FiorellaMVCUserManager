@@ -9,6 +9,6 @@ namespace FirstFiorellaMVC.Models
         public string FullName { get; set; }
 
         [Required]
-        public bool Status { get; set; } = true;
+        public bool IsActive { get; set; } = true;
     }
 }
