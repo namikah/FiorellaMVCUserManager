@@ -141,7 +141,7 @@ namespace FirstFiorellaMVC.Areas.AdminPanel.Controllers
             if (user == null)
                 return NotFound();
 
-            if (status)
+            if (isActive)
                 user.IsActive = false;
             else
                 user.IsActive = true;
